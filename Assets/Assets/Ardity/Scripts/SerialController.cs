@@ -142,6 +142,7 @@ public class SerialController : MonoBehaviour
     // ------------------------------------------------------------------------
     public void SendSerialMessage(string message)
     {
+        Debug.Log("Sending message: " + message);
         serialThread.SendMessage(message);
     }
 

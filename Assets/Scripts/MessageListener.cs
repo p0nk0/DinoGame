@@ -17,7 +17,6 @@ using System.Collections;
 public class MessageListener : MonoBehaviour
 {
     [SerializeField] private string ArduinoName = "Arduino";
-    // [SerializeField] private int BaudRate = 9600;
 
     // Invoked when a line of data is received from the serial device.
     void OnMessageArrived(string msg)
