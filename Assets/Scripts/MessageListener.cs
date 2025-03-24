@@ -16,12 +16,15 @@ using System.Collections;
  */
 public class MessageListener : MonoBehaviour
 {
-    [SerializeField] private string ArduinoName = "Arduino";
+    private enum ArduinoType { RFID, PuzzleBox }
+    [SerializeField] private ArduinoType arduinoType;
+    [SerializeField] private GameStateManager stateManager;
 
     // Invoked when a line of data is received from the serial device.
     void OnMessageArrived(string msg)
     {
-        Debug.Log(ArduinoName + ": " + msg);
+        Debug.Log(arduinoType.ToString() + ": " + msg);
+        if (arduinoType == ArduinoType.RFID) stateManager.HandleScannedItem(msg);
     }
 
     // Invoked when a connect/disconnect event occurs. The parameter 'success'
