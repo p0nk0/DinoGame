@@ -10,7 +10,8 @@ public class GameStateManager : MonoBehaviour
 {
     public GameState state = GameState.wait;
     [SerializeField] private TextMeshProUGUI stateText;
-    [SerializeField] private TextMeshProUGUI progressBar;
+    [SerializeField] private TextMeshProUGUI progressBar; // TODO: Make this a Meter object
+    // TODO: Add Progress Visualizer, which is a box of all the items that activates objects as they're scanned.
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private float timeLimit = 60.0f;
     [SerializeField] private int maxScans = 5;
@@ -96,6 +97,7 @@ public class GameStateManager : MonoBehaviour
             case GameState.updateProgressBar:
                 progressBar.text = $"{itemsScanned.Count}/{maxScans} items scanned";
                 // TODO: Update progress bar UI, add scan log
+                // TODO: Update progress visualizer
                 state = GameState.puzzle1;
                 Debug.Log("Updated progress bar, transitioning to puzzle1 state.");
                 break;
