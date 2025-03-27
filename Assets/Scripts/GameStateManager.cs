@@ -10,14 +10,35 @@ public class GameStateManager : MonoBehaviour
 {
     public GameState state = GameState.wait;
     [SerializeField] private TextMeshProUGUI stateText;
-    [SerializeField] private TextMeshProUGUI progressBar; // TODO: Make this a Meter object
+    [SerializeField] private TextMeshProUGUI progressBarTest; // TODO: Make this a Meter object
+    [SerializeField] private Meter progressBar;
+
     // TODO: Add Progress Visualizer, which is a box of all the items that activates objects as they're scanned.
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private float timeLimit = 60.0f;
+    [SerializeField] private bool onlyValidProps = true;
     [SerializeField] private int maxScans = 5;
     private HashSet<string> itemsScanned = new HashSet<string>();
     private string scannedItem;
     private float startTime;
+
+    private HashSet<string> validProps = new HashSet<string> {
+        " f3 2a 46 36", // test rfid card
+        " 11 8d 07 7c", " f1 a6 f6 7b", // bugs in amber
+        " 41 49 f5 7b", // dinosaur claw
+        " 11 87 0a 7c"  // dinosaur bone
+
+    }; 
+
+    // we need this space in front of keys I guess
+    private Dictionary<string, string> itemDescriptions = new Dictionary<string, string>
+    {
+        { " f3 2a 46 36", "Test RFID Card" },
+        { " 11 8d 07 7c", "Bug in Amber 1" },
+        { " f1 a6 f6 7b", "Bug in Amber 2" },
+        { " 41 49 f5 7b", "Dinosaur Claw" },
+        { " 11 87 0a 7c", "Dinosaur Bone" }
+    };
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -61,7 +82,8 @@ public class GameStateManager : MonoBehaviour
                 // transitions to puzzle1 if anything is scanned
                 startTime = Time.time;
                 itemsScanned = new HashSet<string>();
-                progressBar.text = $"{itemsScanned.Count}/{maxScans} items scanned";
+                progressBarTest.text = $"Waiting to scan ...";
+                progressBar.ResetValue();
                 
                 if (Input.anyKeyDown) // TODO: or stay for only a few seconds
                 {
@@ -95,7 +117,8 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.updateProgressBar:
-                progressBar.text = $"{itemsScanned.Count}/{maxScans} items scanned";
+                progressBarTest.text += $"\n{itemDescriptions[scannedItem]} Scanned!";
+                progressBar.SetValuePercentage((float)itemsScanned.Count/maxScans);
                 // TODO: Update progress bar UI, add scan log
                 // TODO: Update progress visualizer
                 state = GameState.puzzle1;
@@ -130,9 +153,13 @@ public class GameStateManager : MonoBehaviour
     }
 
     // this function is called by the RFID MessageListner whenever any item is scanned.
-    public void HandleScannedItem (string item) {
+    public void HandleScannedItem(string item) {
         if (state == GameState.puzzle1 || state == GameState.tutorial1) {
-            Debug.Log("Item scanned, transitioning to itemScanned state.");
+            if (onlyValidProps && !itemDescriptions.ContainsKey(item)) {
+                Debug.Log("Invalid item scanned: " + item);
+                return;
+            }
+            Debug.Log($"Item scanned: {itemDescriptions[item]}, transitioning to itemScanned state.");
             scannedItem = item;
             state = GameState.itemScanned;
         } else if (state == GameState.wait) {

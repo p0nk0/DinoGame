@@ -69,7 +69,7 @@ public class Meter : MonoBehaviour
             rollTimer = 0;
             rollDuration = 0;
             mySlider.value = trueValue;
-            Debug.Log(mySlider.value);
+            //Debug.Log(mySlider.value);
         }
     }
 
