@@ -5,17 +5,23 @@ using TMPro;
 
 public enum GameState { wait, tutorial1, puzzle1, itemScanned, updateProgressBar, puzzle1Win, puzzle1Fail, tutorial2 }
 
-
 public class GameStateManager : MonoBehaviour
 {
+    private readonly HashSet<GameState> puzzle1States = new HashSet<GameState> { GameState.wait, GameState.tutorial1, GameState.puzzle1, GameState.itemScanned, GameState.updateProgressBar, GameState.puzzle1Win, GameState.puzzle1Fail };
+    private readonly HashSet<GameState> puzzle2States = new HashSet<GameState> { GameState.tutorial2 };
     public GameState state = GameState.wait;
-    [SerializeField] private TextMeshProUGUI stateText;
-    [SerializeField] private TextMeshProUGUI progressBarTest; // TODO: Make this a Meter object
+
+    [Header("Puzzle 1")]
+
+    [SerializeField] private Canvas canvas1;
+    [SerializeField] private TextMeshProUGUI stateText1;
+    [SerializeField] private TextMeshProUGUI scanLog;
     [SerializeField] private Meter progressBar;
 
     // TODO: Add Progress Visualizer, which is a box of all the items that activates objects as they're scanned.
-    [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private float timeLimit = 60.0f;
+
+    [SerializeField] private TextMeshProUGUI timerText1;
+    [SerializeField] private float timeLimit1 = 30.0f;
     [SerializeField] private bool onlyValidProps = true;
     [SerializeField] private int maxScans = 5;
     private HashSet<string> itemsScanned = new HashSet<string>();
@@ -39,32 +45,43 @@ public class GameStateManager : MonoBehaviour
         { " 41 49 f5 7b", "Dinosaur Claw" },
         { " 11 87 0a 7c", "Dinosaur Bone" }
     };
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+
+
+    [Header("Puzzle 2")]
+
+    [SerializeField] private Canvas canvas2;
+    [SerializeField] private TextMeshProUGUI stateText2;
+    [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
+    [SerializeField] private TextMeshProUGUI timerText2;
+    [SerializeField] private float timeLimit2 = 30.0f;
+
 
     // Update is called once per frame
     void Update()
     {
-        stateText.text = state.ToString();
+        if (puzzle1States.Contains(state)) {
+            stateText1.text = state.ToString();
+        } else {
+            stateText2.text = state.ToString();
+        }
 
         if (startTime > 0) {
             float elapsedTime = Time.time - startTime;
-            float timeLeft = Mathf.Max(timeLimit - elapsedTime, 0);
 
-            if (timerText) timerText.text = $"Time: {timeLeft:F1}s";
+            if (puzzle1States.Contains(state)) {
+                float timeLeft = Mathf.Max(timeLimit1 - elapsedTime, 0);
+                if (timerText1) timerText1.text = $"Time: {timeLeft:F1}s";
+            } else {
+                float timeLeft = Mathf.Max(timeLimit2 - elapsedTime, 0);
+                if (timerText2) timerText2.text = $"Time: {timeLeft:F1}s";
+            }
 
-            if (elapsedTime >= timeLimit && state != GameState.puzzle1Win && state != GameState.puzzle1Fail) {
-                if (state == GameState.puzzle1 || state == GameState.updateProgressBar || state == GameState.itemScanned) {
-                    state = GameState.puzzle1Fail;
+            if (elapsedTime >= timeLimit1 && puzzle1States.Contains(state)) {;
                     Debug.Log("User ran out of time on puzzle 1");
-                }
-                else {
-                    Debug.Log("User ran out of time on an unknown state");
-                }
+            } else if (elapsedTime >= timeLimit2 && puzzle2States.Contains(state)) {
+                Debug.Log("User ran out of time on puzzle 2");
+            } else {
+                Debug.Log("User ran out of time on an unknown state");
             }
         }
         
@@ -82,8 +99,10 @@ public class GameStateManager : MonoBehaviour
                 // transitions to puzzle1 if anything is scanned
                 startTime = Time.time;
                 itemsScanned = new HashSet<string>();
-                progressBarTest.text = $"Waiting to scan ...";
+                scanLog.text = $"Waiting to scan ...";
                 progressBar.ResetValue();
+                canvas1.enabled = true;
+                canvas2.enabled = false;
                 
                 if (Input.anyKeyDown) // TODO: or stay for only a few seconds
                 {
@@ -117,7 +136,7 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.updateProgressBar:
-                progressBarTest.text += $"\n{itemDescriptions[scannedItem]} Scanned!";
+                scanLog.text += $"\n{itemDescriptions[scannedItem]} Scanned!";
                 progressBar.SetValuePercentage((float)itemsScanned.Count/maxScans);
                 // TODO: Update progress bar UI, add scan log
                 // TODO: Update progress visualizer
@@ -142,6 +161,9 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.tutorial2:
+                canvas1.enabled = false;
+                canvas2.enabled = true;
+                startTime = Time.time;
                 if (Input.GetKeyDown(KeyCode.R))
                 {
                     Debug.Log("Transitioning to wait state.");
