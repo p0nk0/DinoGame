@@ -25,6 +25,7 @@ public class MessageListener : MonoBehaviour
     {
         Debug.Log(arduinoType.ToString() + ": " + msg);
         if (arduinoType == ArduinoType.RFID) stateManager.HandleScannedItem(msg);
+        else if (arduinoType == ArduinoType.PuzzleBox) stateManager.HandleLights(msg);
     }
 
     // Invoked when a connect/disconnect event occurs. The parameter 'success'

@@ -3,17 +3,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public enum GameState { wait, tutorial1, puzzle1, itemScanned, updateProgressBar, puzzle1Win, puzzle1Fail, tutorial2 }
+public enum GameState { wait, tutorial1, puzzle1, itemScanned, updateProgressBar, puzzle1Win, puzzle1Fail, tutorial2, puzzle2, puzzle2Win, puzzle2Fail};
 
 public class GameStateManager : MonoBehaviour
 {
-    private readonly HashSet<GameState> puzzle1States = new HashSet<GameState> { GameState.wait, GameState.tutorial1, GameState.puzzle1, GameState.itemScanned, GameState.updateProgressBar, GameState.puzzle1Win, GameState.puzzle1Fail };
-    private readonly HashSet<GameState> puzzle2States = new HashSet<GameState> { GameState.tutorial2 };
+    private readonly HashSet<GameState> puzzle1States = new HashSet<GameState> { GameState.tutorial1, GameState.puzzle1, GameState.itemScanned, GameState.updateProgressBar, GameState.puzzle1Win, GameState.puzzle1Fail };
+    private readonly HashSet<GameState> puzzle2States = new HashSet<GameState> { GameState.tutorial2, GameState.puzzle2, GameState.puzzle2Win, GameState.puzzle2Fail };
     public GameState state = GameState.wait;
 
     [Header("Puzzle 1")]
 
-    [SerializeField] private Canvas canvas1;
+    [SerializeField] private GameObject puzzle1;
     [SerializeField] private TextMeshProUGUI stateText1;
     [SerializeField] private TextMeshProUGUI scanLog;
     [SerializeField] private Meter progressBar;
@@ -49,12 +49,30 @@ public class GameStateManager : MonoBehaviour
 
     [Header("Puzzle 2")]
 
-    [SerializeField] private Canvas canvas2;
+    [SerializeField] private GameObject puzzle2;
     [SerializeField] private TextMeshProUGUI stateText2;
     [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
     [SerializeField] private TextMeshProUGUI timerText2;
     [SerializeField] private float timeLimit2 = 30.0f;
 
+    [Header("UI")]
+    [SerializeField] private GameObject resetPanel;
+    [SerializeField] private GameObject winPanel;
+    [SerializeField] private GameObject losePanel;
+
+    [Header("Misc")]
+
+    [SerializeField] private bool debugMode = false;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        puzzle1.SetActive(false);
+        puzzle2.SetActive(false);
+        resetPanel.SetActive(false);
+        winPanel.SetActive(false);
+        losePanel.SetActive(false);
+    }
 
     // Update is called once per frame
     void Update()
@@ -76,18 +94,22 @@ public class GameStateManager : MonoBehaviour
                 if (timerText2) timerText2.text = $"Time: {timeLeft:F1}s";
             }
 
-            if (elapsedTime >= timeLimit1 && puzzle1States.Contains(state)) {;
-                    Debug.Log("User ran out of time on puzzle 1");
-            } else if (elapsedTime >= timeLimit2 && puzzle2States.Contains(state)) {
+            if (puzzle1States.Contains(state) && elapsedTime >= timeLimit1 && state != GameState.puzzle1Win && state != GameState.puzzle1Fail) {
+                state = GameState.puzzle1Fail;
+                Debug.Log("User ran out of time on puzzle 1");
+            } else if (puzzle2States.Contains(state) && elapsedTime >= timeLimit2 && state != GameState.puzzle2Win && state != GameState.puzzle2Fail) {
+                state = GameState.puzzle2Fail;
                 Debug.Log("User ran out of time on puzzle 2");
-            } else {
-                Debug.Log("User ran out of time on an unknown state");
             }
         }
         
         switch (state) {
             case GameState.wait:
-                 // transitions to tutorial1 if anything is scanned
+                // transitions to tutorial1 if anything is scanned
+                resetPanel.SetActive(true);
+                winPanel.SetActive(false);
+                losePanel.SetActive(false); 
+
                 if (Input.anyKeyDown)
                 {
                     Debug.Log("Transitioning to tutorial1 state.");
@@ -101,8 +123,8 @@ public class GameStateManager : MonoBehaviour
                 itemsScanned = new HashSet<string>();
                 scanLog.text = $"Waiting to scan ...";
                 progressBar.ResetValue();
-                canvas1.enabled = true;
-                canvas2.enabled = false;
+                puzzle1.SetActive(true);
+                resetPanel.SetActive(false);
                 
                 if (Input.anyKeyDown) // TODO: or stay for only a few seconds
                 {
@@ -114,6 +136,13 @@ public class GameStateManager : MonoBehaviour
             case GameState.puzzle1:
                 // transitions to itemScanned if anything is scanned
                 // does nothing except for waiting for items to be scanned
+
+                if (debugMode && Input.GetKeyDown(KeyCode.Space))
+                {
+                    Debug.Log("DEBUG MODE: Skipping to puzzle1Win state.");
+                    state = GameState.puzzle1Win;
+                }
+                else
 
                 if (itemsScanned.Count >= maxScans)
                 {
@@ -161,10 +190,47 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.tutorial2:
-                canvas1.enabled = false;
-                canvas2.enabled = true;
+                puzzle1.SetActive(false);
+                puzzle2.SetActive(true);
                 startTime = Time.time;
-                if (Input.GetKeyDown(KeyCode.R))
+                lights.text = " 000000";
+                if (Input.anyKeyDown) // TODO: or stay for only a few seconds
+                {
+                    Debug.Log("Transitioning to puzzle2 state.");
+                    state = GameState.puzzle2;
+                }
+                break;
+            
+            case GameState.puzzle2:
+                // transitions to puzzle2Win if lights are correct
+                { if (lights.text == "101001")
+                    {
+                        Debug.Log("Correct lights, transitioning to puzzle2Win state.");
+                        state = GameState.puzzle2Win;
+                    }
+                }
+                break;
+
+            case GameState.puzzle2Win:
+                // TODO: Play win cutscene
+                // TODO: communicate with dinosaur
+                puzzle2.SetActive(false);
+                winPanel.SetActive(true);
+                startTime = 0;
+                if (Input.anyKeyDown) // TODO: stay for only a few seconds
+                {
+                    Debug.Log("Transitioning to wait state.");
+                    state = GameState.wait;
+                }
+                break;
+
+            case GameState.puzzle2Fail:
+                // TODO: Play fail cutscene
+                // TODO: communicate with dinosaur
+                puzzle2.SetActive(false);
+                losePanel.SetActive(true); 
+                startTime = 0;
+                if (Input.anyKeyDown) // TODO: stay for only a few seconds
                 {
                     Debug.Log("Transitioning to wait state.");
                     state = GameState.wait;
@@ -189,6 +255,15 @@ public class GameStateManager : MonoBehaviour
             state = GameState.tutorial1;
         } else {
             Debug.Log($"Item scanned, but current state is {state.ToString()}.");
+            return;
+        }
+    }
+
+    public void HandleLights(string lightString) {
+        if (state == GameState.puzzle2) {
+            lights.text = lightString;
+        } else {
+            Debug.Log($"Lights updated, but current state is {state.ToString()}.");
             return;
         }
     }
