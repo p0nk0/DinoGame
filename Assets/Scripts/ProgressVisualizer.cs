@@ -12,12 +12,15 @@ public class ProgressVisualizer : MonoBehaviour
     [SerializeField] protected List<string> itemIds;
     [Tooltip("Used to create an id to item mapping")]
     [SerializeField] protected List<GameObject> items;
-    protected Dictionary<string, GameObject> idToItem;
-    protected int numEnabledItems = 0;
+    [Tooltip("Sprite color when scanned (be sure to check the alpha value!)")]
+    [SerializeField] protected Color scannedColor;
+    [Tooltip("Sprite color when not yet scanned (be sure to check the alpha value!)")]
+    [SerializeField] protected Color notScannedColor;
+    protected Dictionary<string, (GameObject, bool)> idToItem;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        idToItem = new Dictionary<string, GameObject>();
+        idToItem = new Dictionary<string, (GameObject, bool)>();
         // Ensure all gameObjects are child of this object (remove non children from list)
         for (int i = 0; i < items.Count; i++)
         {
@@ -27,8 +30,6 @@ public class ProgressVisualizer : MonoBehaviour
                 items.RemoveAt(i);
                 i--;
             }
-            else if (items[i].activeSelf)
-                numEnabledItems++;
         }
 
         
@@ -38,7 +39,7 @@ public class ProgressVisualizer : MonoBehaviour
             if (idToItem.ContainsKey(itemIds[j]))
                 Debug.LogWarning("Duplicate id \"" + itemIds + "\" found! Failed to map to item \"" + items[j] + "\"");
             else
-                idToItem.Add(itemIds[j], items[j]);
+                idToItem.Add(itemIds[j], (items[j], false));
 
             j++;
         }
@@ -66,12 +67,14 @@ public class ProgressVisualizer : MonoBehaviour
         // If idToObject contains id, activate and reorder children using SetSiblingIndex
         if (idToItem.ContainsKey(id))
         {
-            GameObject obj = idToItem[id];
-            if (!obj.activeInHierarchy)
+            (GameObject, bool) obj = idToItem[id];
+            if (!obj.Item2)
             {
-                obj.transform.SetSiblingIndex(numEnabledItems);
-                numEnabledItems++;
-                obj.SetActive(true);
+                Image image = obj.Item1.GetComponent<Image>();
+                if (image)
+                    image.color = scannedColor;
+
+                obj.Item2 = true;
             }
         }
     }
@@ -84,9 +87,15 @@ public class ProgressVisualizer : MonoBehaviour
         // If idToObject contains id, deactivate
         if (idToItem.ContainsKey(id))
         {
-            GameObject obj = idToItem[id];
-            if (obj.activeInHierarchy)
-                numEnabledItems--;
+            (GameObject, bool) obj = idToItem[id];
+            if (obj.Item2)
+            {
+                Image image = obj.Item1.GetComponent<Image>();
+                if (image)
+                    image.color = notScannedColor;
+
+                obj.Item2 = false;
+            }
         }
     }
 }

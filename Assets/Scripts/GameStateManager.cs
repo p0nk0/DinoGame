@@ -21,6 +21,9 @@ public class GameStateManager : MonoBehaviour
     //       This is a box of all the items that activates objects as they're scanned.
     [SerializeField] private ProgressVisualizer itemBox;
 
+    //TODO: update systemLog when scanning
+    [SerializeField] private SystemLog systemLog;
+
 
     [SerializeField] private TextMeshProUGUI timerText1;
     [SerializeField] private float timeLimit1 = 30.0f;
