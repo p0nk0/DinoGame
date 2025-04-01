@@ -17,8 +17,10 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stateText1;
     [SerializeField] private TextMeshProUGUI scanLog;
     [SerializeField] private Meter progressBar;
+    // TODO: Incorporate Progress Visualizer into state machine.
+    //       This is a box of all the items that activates objects as they're scanned.
+    [SerializeField] private ProgressVisualizer itemBox;
 
-    // TODO: Add Progress Visualizer, which is a box of all the items that activates objects as they're scanned.
 
     [SerializeField] private TextMeshProUGUI timerText1;
     [SerializeField] private float timeLimit1 = 30.0f;
