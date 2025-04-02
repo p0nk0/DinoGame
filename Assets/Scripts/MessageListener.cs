@@ -16,7 +16,7 @@ using System.Collections;
  */
 public class MessageListener : MonoBehaviour
 {
-    private enum ArduinoType { RFID, PuzzleBox }
+    private enum ArduinoType { RFID, PuzzleBox, Dino }
     [SerializeField] private ArduinoType arduinoType;
     [SerializeField] private GameStateManager stateManager;
 
@@ -26,6 +26,9 @@ public class MessageListener : MonoBehaviour
         Debug.Log(arduinoType.ToString() + ": " + msg);
         if (arduinoType == ArduinoType.RFID) stateManager.HandleScannedItem(msg);
         else if (arduinoType == ArduinoType.PuzzleBox) stateManager.HandleLights(msg);
+        else if (arduinoType == ArduinoType.Dino) {
+            Debug.Log("HELLO ??");
+        };
     }
 
     // Invoked when a connect/disconnect event occurs. The parameter 'success'
