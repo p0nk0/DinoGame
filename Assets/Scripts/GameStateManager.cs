@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,7 +25,6 @@ public class GameStateManager : MonoBehaviour
     //TODO: update systemLog when scanning
     [SerializeField] private SystemLog systemLog;
 
-
     [SerializeField] private TextMeshProUGUI timerText1;
     [SerializeField] private float timeLimit1 = 30.0f;
     [SerializeField] private bool onlyValidProps = true;
@@ -34,7 +34,7 @@ public class GameStateManager : MonoBehaviour
     private float startTime;
 
     private HashSet<string> validProps = new HashSet<string> {
-        " f3 2a 46 36", // test rfid card
+        " f3 2a 46 36", // test rfid card (dino saliva, Angie's ID)
         " 11 8d 07 7c", " f1 a6 f6 7b", // bugs in amber
         " 41 49 f5 7b", // dinosaur claw
         " 11 87 0a 7c"  // dinosaur bone
@@ -44,11 +44,11 @@ public class GameStateManager : MonoBehaviour
     // we need this space in front of keys I guess
     private Dictionary<string, string> itemDescriptions = new Dictionary<string, string>
     {
-        { " f3 2a 46 36", "Test RFID Card" },
-        { " 11 8d 07 7c", "Bug in Amber 1" },
-        { " f1 a6 f6 7b", "Bug in Amber 2" },
-        { " 41 49 f5 7b", "Dinosaur Claw" },
-        { " 11 87 0a 7c", "Dinosaur Bone" }
+        { " f3 2a 46 36", "Velociraptor Saliva" },
+        { " 11 8d 07 7c", "Saperda Robusta in amber" },
+        { " f1 a6 f6 7b", "Plectromerus tertiarius in amber" },
+        { " 41 49 f5 7b", "Velociraptor Claw" },
+        { " 11 87 0a 7c", "Microceratus Leg" }
     };
 
 
@@ -58,6 +58,7 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stateText2;
     [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
     [SerializeField] private TextMeshProUGUI timerText2;
+    
     [SerializeField] private float timeLimit2 = 30.0f;
 
     [Header("UI")]
@@ -67,6 +68,10 @@ public class GameStateManager : MonoBehaviour
 
     [Header("Misc")]
 
+    [SerializeField] public SerialController dino;
+    [SerializeField] public AudioSource alarmSound;
+    [SerializeField] public AudioSource dinoRoar;
+    [SerializeField] public AudioSource dinoGrowl;
     [SerializeField] private bool debugMode = false;
 
     // Start is called before the first frame update
@@ -181,6 +186,8 @@ public class GameStateManager : MonoBehaviour
             case GameState.puzzle1Win:
                 // TODO: Play win cutscene
                 // TODO: communicate with dinosaur
+                // dino growl
+                StartCoroutine(Puzzle1WinSequence());
                 state = GameState.tutorial2;
                 startTime = 0;
                 Debug.Log("Transitioning to tutorial2 state.");
@@ -189,6 +196,8 @@ public class GameStateManager : MonoBehaviour
             case GameState.puzzle1Fail:
                 // TODO: Play fail cutscene
                 // TODO: communicate with dinosaur
+                // dino roar
+                StartCoroutine(Puzzle1FailSequence());
                 state = GameState.tutorial2;
                 startTime = 0;
                 Debug.Log("Transitioning to tutorial2 state.");
@@ -219,6 +228,13 @@ public class GameStateManager : MonoBehaviour
             case GameState.puzzle2Win:
                 // TODO: Play win cutscene
                 // TODO: communicate with dinosaur
+
+
+                // alarm successful pop up
+                // alarm sound effect
+
+                // dino growl (?) sound effect
+                StartCoroutine(Puzzle2WinSequence());
                 puzzle2.SetActive(false);
                 winPanel.SetActive(true);
                 startTime = 0;
@@ -232,6 +248,11 @@ public class GameStateManager : MonoBehaviour
             case GameState.puzzle2Fail:
                 // TODO: Play fail cutscene
                 // TODO: communicate with dinosaur
+
+                // alarm fail pop up
+
+                // dino roar (?) sound effect
+                StartCoroutine(Puzzle2FailSequence());
                 puzzle2.SetActive(false);
                 losePanel.SetActive(true); 
                 startTime = 0;
@@ -243,6 +264,53 @@ public class GameStateManager : MonoBehaviour
                 break;
 
         }
+    }
+
+    private IEnumerator JumpScare() {
+        dino.SendMessage("j");
+        yield return new WaitForSeconds(1.5f);
+    }
+
+    private IEnumerator Roar() {
+        dino.SendMessage("r");
+        dinoRoar.Play();
+        yield return new WaitForSeconds(1.5f);
+    }
+
+    private IEnumerator Growl() {
+        dino.SendMessage("g");
+        dinoGrowl.Play();
+        yield return new WaitForSeconds(1.5f);
+    }
+
+    private IEnumerator Home() {
+        dino.SendMessage("h");
+        yield return new WaitForSeconds(2f);
+    }
+
+    private IEnumerator Puzzle1WinSequence()
+    {
+        yield return StartCoroutine(JumpScare());
+        yield return StartCoroutine(Growl());
+    }
+
+    private IEnumerator Puzzle1FailSequence()
+    {
+        yield return StartCoroutine(JumpScare());
+        yield return StartCoroutine(Roar());
+    }
+
+    private IEnumerator Puzzle2WinSequence()
+    {
+        alarmSound.Play();
+        yield return StartCoroutine(Growl());
+        yield return StartCoroutine(Home());
+    }
+
+    private IEnumerator Puzzle2FailSequence()
+    {
+        yield return StartCoroutine(Roar());
+        yield return StartCoroutine(Home());
     }
 
     // this function is called by the RFID MessageListner whenever any item is scanned.

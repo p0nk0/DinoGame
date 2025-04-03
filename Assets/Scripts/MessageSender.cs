@@ -14,7 +14,7 @@ using System.Collections;
  *  - OnMessageArrived
  *  - OnConnectionEvent
  */
-public class MessageSender : MonoBehaviour
+public class MessageSenderOld : MonoBehaviour
 {
     public SerialController serialController; // Reference to the SerialController
 
