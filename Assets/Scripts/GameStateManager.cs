@@ -31,6 +31,12 @@ public class GameStateManager : MonoBehaviour
     private string scannedItem;
     private float startTime;
 
+    [Header("Puzzle 2")]
+    // TODO: Assign to empty game object and create diagram
+    //       use this to perform switch-light logic and
+    //       determine light configuration
+    [SerializeField] private CircuitSystem circuitSystem;
+
     private HashSet<string> validProps = new HashSet<string> {
         " f3 2a 46 36", // test rfid card (dino saliva, Angie's ID)
         " 11 8d 07 7c", " f1 a6 f6 7b", // bugs in amber
