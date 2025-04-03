@@ -15,7 +15,6 @@ public class GameStateManager : MonoBehaviour
     [Header("Puzzle 1")]
 
     [SerializeField] private GameObject puzzle1;
-    [SerializeField] private TextMeshProUGUI stateText1;
     [SerializeField] private TextMeshProUGUI scanLog;
     [SerializeField] private Meter progressBar;
     // TODO: Incorporate Progress Visualizer into state machine.
@@ -25,7 +24,6 @@ public class GameStateManager : MonoBehaviour
     //TODO: update systemLog when scanning
     [SerializeField] private SystemLog systemLog;
 
-    [SerializeField] private TextMeshProUGUI timerText1;
     [SerializeField] private float timeLimit1 = 30.0f;
     [SerializeField] private bool onlyValidProps = true;
     [SerializeField] private int maxScans = 5;
@@ -55,9 +53,7 @@ public class GameStateManager : MonoBehaviour
     [Header("Puzzle 2")]
 
     [SerializeField] private GameObject puzzle2;
-    [SerializeField] private TextMeshProUGUI stateText2;
     [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
-    [SerializeField] private TextMeshProUGUI timerText2;
     
     [SerializeField] private float timeLimit2 = 30.0f;
 
@@ -87,22 +83,22 @@ public class GameStateManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (puzzle1States.Contains(state)) {
-            stateText1.text = state.ToString();
-        } else {
-            stateText2.text = state.ToString();
-        }
+        // if (puzzle1States.Contains(state)) {
+        //     stateText1.text = state.ToString();
+        // } else {
+        //     stateText2.text = state.ToString();
+        // }
 
         if (startTime > 0) {
             float elapsedTime = Time.time - startTime;
 
-            if (puzzle1States.Contains(state)) {
-                float timeLeft = Mathf.Max(timeLimit1 - elapsedTime, 0);
-                if (timerText1) timerText1.text = $"Time: {timeLeft:F1}s";
-            } else {
-                float timeLeft = Mathf.Max(timeLimit2 - elapsedTime, 0);
-                if (timerText2) timerText2.text = $"Time: {timeLeft:F1}s";
-            }
+            // if (puzzle1States.Contains(state)) {
+            //     float timeLeft = Mathf.Max(timeLimit1 - elapsedTime, 0);
+            //     if (timerText1) timerText1.text = $"Time: {timeLeft:F1}s";
+            // } else {
+            //     float timeLeft = Mathf.Max(timeLimit2 - elapsedTime, 0);
+            //     if (timerText2) timerText2.text = $"Time: {timeLeft:F1}s";
+            // }
 
             if (puzzle1States.Contains(state) && elapsedTime >= timeLimit1 && state != GameState.puzzle1Win && state != GameState.puzzle1Fail) {
                 state = GameState.puzzle1Fail;
@@ -131,16 +127,15 @@ public class GameStateManager : MonoBehaviour
                 // transitions to puzzle1 if anything is scanned
                 startTime = Time.time;
                 itemsScanned = new HashSet<string>();
-                scanLog.text = $"Waiting to scan ...";
+                // scanLog.text = $"Waiting to scan ...";
                 progressBar.ResetValue();
                 puzzle1.SetActive(true);
                 resetPanel.SetActive(false);
-                
-                if (Input.anyKeyDown) // TODO: or stay for only a few seconds
-                {
-                    Debug.Log("Transitioning to puzzle1 state.");
-                    state = GameState.puzzle1;
-                }
+
+                systemLog.LogMessage("Successfully initialized.");
+                systemLog.LogMessage("Waiting for items to be scanned ...");
+                Debug.Log("Transitioning to puzzle1 state.");
+                state = GameState.puzzle1;
                 break;
 
             case GameState.puzzle1:
@@ -175,7 +170,8 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.updateProgressBar:
-                scanLog.text += $"\n{itemDescriptions[scannedItem]} Scanned!";
+                // scanLog.text += $"\n{itemDescriptions[scannedItem]} Scanned!";
+                systemLog.LogMessage("DNA Sample Scanned: " + itemDescriptions[scannedItem]);
                 progressBar.SetValuePercentage((float)itemsScanned.Count/maxScans);
                 // TODO: Update progress bar UI, add scan log
                 // TODO: Update progress visualizer
