@@ -1304,7 +1304,7 @@ GameObject:
   - component: {fileID: 406604978}
   - component: {fileID: 406604977}
   m_Layer: 5
-  m_Name: Light1 (3)
+  m_Name: Light4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1326,7 +1326,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -25, y: -380.99997}
+  m_AnchoredPosition: {x: 442.99994, y: -380.99997}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &406604977
@@ -1530,7 +1530,7 @@ GameObject:
   - component: {fileID: 446530306}
   - component: {fileID: 446530305}
   m_Layer: 5
-  m_Name: Light1 (2)
+  m_Name: Light3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1552,7 +1552,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -25, y: -245}
+  m_AnchoredPosition: {x: 442.99994, y: -245}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &446530305
@@ -2040,7 +2040,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -655, y: 241}
+  m_AnchoredPosition: {x: -1135, y: 241}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &542083247
@@ -2891,7 +2891,7 @@ GameObject:
   - component: {fileID: 757985832}
   - component: {fileID: 757985831}
   m_Layer: 5
-  m_Name: Light1 (5)
+  m_Name: Light6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2913,7 +2913,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -25, y: -649}
+  m_AnchoredPosition: {x: 442.99994, y: -649}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &757985831
@@ -3348,8 +3348,8 @@ RectTransform:
   - {fileID: 2041732709}
   - {fileID: 711637939}
   - {fileID: 2013820611}
-  - {fileID: 822112296}
   - {fileID: 1393955479}
+  - {fileID: 822112296}
   - {fileID: 528704806}
   m_Father: {fileID: 710233755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5621,14 +5621,68 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switches:
-  - buttonIcon: {fileID: 0}
-    paths: []
-    connectedLights: 
-  lights: []
-  switchOnSprite: {fileID: 0}
-  switchOffSprite: {fileID: 0}
-  lightOnSprite: {fileID: 0}
-  lightOffSprite: {fileID: 0}
+  - buttonIcon: {fileID: 1012602570}
+    paths:
+    - {fileID: 1355520293}
+    - {fileID: 1747758931}
+    - {fileID: 1885618666}
+    connectedLights: 02000000
+  - buttonIcon: {fileID: 1287542072}
+    paths:
+    - {fileID: 1016367253}
+    - {fileID: 1673259936}
+    - {fileID: 1843194620}
+    - {fileID: 1992397330}
+    - {fileID: 684648397}
+    - {fileID: 21099778}
+    connectedLights: 0000000004000000
+  - buttonIcon: {fileID: 956579912}
+    paths:
+    - {fileID: 205831235}
+    - {fileID: 407115563}
+    - {fileID: 945944835}
+    - {fileID: 1419430100}
+    - {fileID: 653675596}
+    connectedLights: 05000000
+  - buttonIcon: {fileID: 434580554}
+    paths:
+    - {fileID: 342679128}
+    - {fileID: 805434853}
+    - {fileID: 1334028374}
+    - {fileID: 309962714}
+    - {fileID: 1571765449}
+    - {fileID: 1823631866}
+    connectedLights: 01000000
+  - buttonIcon: {fileID: 1580229355}
+    paths:
+    - {fileID: 1187966017}
+    - {fileID: 183965925}
+    - {fileID: 290748508}
+    connectedLights: 01000000
+  - buttonIcon: {fileID: 2044355908}
+    paths:
+    - {fileID: 1328190025}
+    - {fileID: 1258581057}
+    - {fileID: 778153283}
+    - {fileID: 1769965136}
+    connectedLights: 04000000
+  lights:
+  - lightIcon: {fileID: 1696597020}
+    connectedSwitches: 01000000
+  - lightIcon: {fileID: 1491334997}
+    connectedSwitches: 0300000004000000
+  - lightIcon: {fileID: 446530305}
+    connectedSwitches: 00000000
+  - lightIcon: {fileID: 406604977}
+    connectedSwitches: 01000000
+  - lightIcon: {fileID: 1493999189}
+    connectedSwitches: 05000000
+  - lightIcon: {fileID: 757985831}
+    connectedSwitches: 02000000
+  switchOnSprite: {fileID: 189694894464286381, guid: 6559f3c3d371fef4083461a08ccb61a8, type: 3}
+  switchOffSprite: {fileID: 525852218093570569, guid: 5d9fd262ad134bd4ab055278184eb843, type: 3}
+  lightOnSprite: {fileID: -3393420384778846968, guid: a3eacb7110c33a64ca808bca2feea6a0, type: 3}
+  lightOffSprite: {fileID: 368887033306011648, guid: 9f63ad6d7d41e7449959fa92aa16ff93, type: 3}
 --- !u!1 &1419430100
 GameObject:
   m_ObjectHideFlags: 0
@@ -5973,7 +6027,7 @@ GameObject:
   - component: {fileID: 1491334998}
   - component: {fileID: 1491334997}
   m_Layer: 5
-  m_Name: Light1 (1)
+  m_Name: Light2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5995,7 +6049,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -25, y: -116}
+  m_AnchoredPosition: {x: 442.99994, y: -116}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1491334997
@@ -6048,7 +6102,7 @@ GameObject:
   - component: {fileID: 1493999190}
   - component: {fileID: 1493999189}
   m_Layer: 5
-  m_Name: Light1 (4)
+  m_Name: Light5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6070,7 +6124,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -25, y: -517}
+  m_AnchoredPosition: {x: 442.99994, y: -517}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1493999189
@@ -6635,7 +6689,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -25, y: 19}
+  m_AnchoredPosition: {x: 443, y: 19}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1696597020
