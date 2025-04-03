@@ -7,13 +7,13 @@ using System.Collections.Generic;
 public class SystemLog : MonoBehaviour
 {
     [SerializeField] private List<TextMeshProUGUI> lines;
-    private List<string> messages;
+    private List<string> messages = new List<string>();
     private int cursor;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        messages = new List<string>();
+        
     }
 
     // Update is called once per frame
