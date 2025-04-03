@@ -10,7 +10,7 @@ public class Switch
     public Image buttonIcon;
     [Tooltip("Keep an all black copy of each path *behind* all the \"highlight\" paths in the scene (higher in the hierarchy).")]
     public List<GameObject> paths;
-    [Tooltip("Lights are 0-indexed, and path[i] corresponds to light[i].")]
+    [Tooltip("Lights are 0-indexed, and path[i] corresponds to connectedLights[i].")]
     public List<int> connectedLights;
 
     public void SetStatus(bool s, Sprite icon)
