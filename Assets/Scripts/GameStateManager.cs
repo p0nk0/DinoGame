@@ -37,6 +37,23 @@ public class GameStateManager : MonoBehaviour
     //       determine light configuration
     [SerializeField] private CircuitSystem circuitSystem;
 
+    [SerializeField] private GameObject puzzle2;
+    [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
+    
+    [SerializeField] private float timeLimit2 = 30.0f;
+
+    [Header("UI")]
+    [SerializeField] private GameObject resetPanel;
+    [SerializeField] private GameObject winPanel;
+    [SerializeField] private GameObject losePanel;
+
+    [Header("Misc")]
+
+    [SerializeField] public SerialController dino;
+    [SerializeField] public AudioSource alarmSound;
+    [SerializeField] public AudioSource dinoRoar;
+    [SerializeField] public AudioSource dinoGrowl;
+    [SerializeField] private bool debugMode = false;
     private HashSet<string> validProps = new HashSet<string> {
         " f3 2a 46 36", // test rfid card (dino saliva, Angie's ID)
         " 11 8d 07 7c", " f1 a6 f6 7b", // bugs in amber
@@ -55,26 +72,6 @@ public class GameStateManager : MonoBehaviour
         { " 11 87 0a 7c", "Microceratus Leg" }
     };
 
-
-    [Header("Puzzle 2")]
-
-    [SerializeField] private GameObject puzzle2;
-    [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
-    
-    [SerializeField] private float timeLimit2 = 30.0f;
-
-    [Header("UI")]
-    [SerializeField] private GameObject resetPanel;
-    [SerializeField] private GameObject winPanel;
-    [SerializeField] private GameObject losePanel;
-
-    [Header("Misc")]
-
-    [SerializeField] public SerialController dino;
-    [SerializeField] public AudioSource alarmSound;
-    [SerializeField] public AudioSource dinoRoar;
-    [SerializeField] public AudioSource dinoGrowl;
-    [SerializeField] private bool debugMode = false;
 
     // Start is called before the first frame update
     void Start()
@@ -336,7 +333,7 @@ public class GameStateManager : MonoBehaviour
 
     public void HandleLights(string lightString) {
         if (state == GameState.puzzle2) {
-            lights.text = lightString;
+            lights.text = lightString.Trim();
         } else {
             Debug.Log($"Lights updated, but current state is {state.ToString()}.");
             return;
