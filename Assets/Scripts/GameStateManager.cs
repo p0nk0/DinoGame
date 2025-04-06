@@ -4,24 +4,25 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public enum GameState { wait, tutorial1, puzzle1, itemScanned, updateProgressBar, puzzle1Win, puzzle1Fail, tutorial2, puzzle2, puzzle2Win, puzzle2Fail};
+public enum GameState { wait, tutorial1, puzzle1, itemScanned, updateProgressBar, puzzle1Win, puzzle1Fail, tutorial2, puzzle2, puzzle2Win, puzzle2Fail, puzzle2End};
 
 public class GameStateManager : MonoBehaviour
 {
     private readonly HashSet<GameState> puzzle1States = new HashSet<GameState> { GameState.tutorial1, GameState.puzzle1, GameState.itemScanned, GameState.updateProgressBar, GameState.puzzle1Win, GameState.puzzle1Fail };
-    private readonly HashSet<GameState> puzzle2States = new HashSet<GameState> { GameState.tutorial2, GameState.puzzle2, GameState.puzzle2Win, GameState.puzzle2Fail };
+    private readonly HashSet<GameState> puzzle2States = new HashSet<GameState> { GameState.tutorial2, GameState.puzzle2, GameState.puzzle2Win, GameState.puzzle2Fail, GameState.puzzle2End};
+    
+    private readonly HashSet<GameState> noTimeLimitStates = new HashSet<GameState> {GameState.puzzle1Win, GameState.puzzle1Fail, GameState.tutorial1, GameState.tutorial2, GameState.puzzle2Win, GameState.puzzle2Fail, GameState.puzzle2End};
     public GameState state = GameState.wait;
 
     [Header("Puzzle 1")]
 
     [SerializeField] private GameObject puzzle1;
-    [SerializeField] private TextMeshProUGUI scanLog;
+    // [SerializeField] private TextMeshProUGUI scanLog;
     [SerializeField] private Meter progressBar;
     // TODO: Incorporate Progress Visualizer into state machine.
     //       This is a box of all the items that activates objects as they're scanned.
     [SerializeField] private ProgressVisualizer itemBox;
 
-    //TODO: update systemLog when scanning
     [SerializeField] private SystemLog systemLog;
 
     [SerializeField] private float timeLimit1 = 30.0f;
@@ -38,7 +39,7 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private CircuitSystem circuitSystem;
 
     [SerializeField] private GameObject puzzle2;
-    [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
+    // [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
     
     [SerializeField] private float timeLimit2 = 30.0f;
 
@@ -46,6 +47,8 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private GameObject resetPanel;
     [SerializeField] private GameObject winPanel;
     [SerializeField] private GameObject losePanel;
+    [SerializeField] private GameObject dinoPanel;
+
 
     [Header("Misc")]
 
@@ -53,6 +56,8 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] public AudioSource alarmSound;
     [SerializeField] public AudioSource dinoRoar;
     [SerializeField] public AudioSource dinoGrowl;
+    [SerializeField] private AudioSource beep;
+
     [SerializeField] private bool debugMode = false;
     private HashSet<string> validProps = new HashSet<string> {
         " f3 2a 46 36", // test rfid card (dino saliva, Angie's ID)
@@ -81,6 +86,8 @@ public class GameStateManager : MonoBehaviour
         resetPanel.SetActive(false);
         winPanel.SetActive(false);
         losePanel.SetActive(false);
+        dinoPanel.SetActive(false);
+        Home();
     }
 
     // Update is called once per frame
@@ -92,21 +99,27 @@ public class GameStateManager : MonoBehaviour
         //     stateText2.text = state.ToString();
         // }
 
+        // Debug.Log(startTime);
+
         if (startTime > 0) {
             float elapsedTime = Time.time - startTime;
 
-            // if (puzzle1States.Contains(state)) {
-            //     float timeLeft = Mathf.Max(timeLimit1 - elapsedTime, 0);
-            //     if (timerText1) timerText1.text = $"Time: {timeLeft:F1}s";
-            // } else {
-            //     float timeLeft = Mathf.Max(timeLimit2 - elapsedTime, 0);
-            //     if (timerText2) timerText2.text = $"Time: {timeLeft:F1}s";
-            // }
+            float timeLeft;
 
-            if (puzzle1States.Contains(state) && elapsedTime >= timeLimit1 && state != GameState.puzzle1Win && state != GameState.puzzle1Fail) {
+            if (puzzle1States.Contains(state)) {
+                timeLeft = Mathf.Max(timeLimit1 - elapsedTime, 0);
+                // if (timerText1) timerText1.text = $"Time: {timeLeft:F1}s";
+            } else {
+                timeLeft = Mathf.Max(timeLimit2 - elapsedTime, 0);
+                // if (timerText2) timerText2.text = $"Time: {timeLeft:F1}s";
+            }
+
+            // Debug.Log($"Time Left: {timeLeft:F1}s");
+
+            if (puzzle1States.Contains(state) && !noTimeLimitStates.Contains(state) && elapsedTime >= timeLimit1) {
                 state = GameState.puzzle1Fail;
                 Debug.Log("User ran out of time on puzzle 1");
-            } else if (puzzle2States.Contains(state) && elapsedTime >= timeLimit2 && state != GameState.puzzle2Win && state != GameState.puzzle2Fail) {
+            } else if (puzzle2States.Contains(state) &&  !noTimeLimitStates.Contains(state) && elapsedTime >= timeLimit2) {
                 state = GameState.puzzle2Fail;
                 Debug.Log("User ran out of time on puzzle 2");
             }
@@ -118,8 +131,11 @@ public class GameStateManager : MonoBehaviour
                 resetPanel.SetActive(true);
                 winPanel.SetActive(false);
                 losePanel.SetActive(false); 
+                puzzle1.SetActive(false);
+                puzzle2.SetActive(false);
+                dinoPanel.SetActive(false);
 
-                if (Input.anyKeyDown)
+                if (Input.anyKeyDown) // TODO: or anything is scanned
                 {
                     Debug.Log("Transitioning to tutorial1 state.");
                     state = GameState.tutorial1;
@@ -127,14 +143,21 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.tutorial1:
-                // transitions to puzzle1 if anything is scanned
+                // transitions to puzzle1 automatically
                 startTime = Time.time;
                 itemsScanned = new HashSet<string>();
-                // scanLog.text = $"Waiting to scan ...";
-                progressBar.ResetValue();
-                puzzle1.SetActive(true);
-                resetPanel.SetActive(false);
-
+                if(progressBar!=null) {
+                    progressBar.ResetValue();
+                } else {
+                    Debug.LogError("Progress bar is null.");
+                }
+                if(puzzle1!=null)puzzle1.SetActive(true);
+                if(resetPanel!=null)resetPanel.SetActive(false);
+                systemLog.LogMessage("");
+                systemLog.LogMessage("");
+                systemLog.LogMessage("");
+                systemLog.LogMessage("");
+                systemLog.LogMessage("");
                 systemLog.LogMessage("Successfully initialized.");
                 systemLog.LogMessage("Waiting for items to be scanned ...");
                 Debug.Log("Transitioning to puzzle1 state.");
@@ -162,6 +185,7 @@ public class GameStateManager : MonoBehaviour
             case GameState.itemScanned:
                 if (itemsScanned.Add(scannedItem)) // if item is new
                 {
+                    beep.Play();
                     Debug.Log("New item scanned: " + scannedItem);
                     state = GameState.updateProgressBar;
                 }
@@ -176,145 +200,138 @@ public class GameStateManager : MonoBehaviour
                 // scanLog.text += $"\n{itemDescriptions[scannedItem]} Scanned!";
                 systemLog.LogMessage("DNA Sample Scanned: " + itemDescriptions[scannedItem]);
                 progressBar.SetValuePercentage((float)itemsScanned.Count/maxScans);
-                // TODO: Update progress bar UI, add scan log
-                // TODO: Update progress visualizer
                 state = GameState.puzzle1;
                 Debug.Log("Updated progress bar, transitioning to puzzle1 state.");
                 break;
 
             case GameState.puzzle1Win:
-                // TODO: Play win cutscene
-                // TODO: communicate with dinosaur
                 // dino growl
                 StartCoroutine(Puzzle1WinSequence());
                 state = GameState.tutorial2;
-                startTime = 0;
-                Debug.Log("Transitioning to tutorial2 state.");
                 break;
 
             case GameState.puzzle1Fail:
-                // TODO: Play fail cutscene
-                // TODO: communicate with dinosaur
                 // dino roar
                 StartCoroutine(Puzzle1FailSequence());
                 state = GameState.tutorial2;
-                startTime = 0;
-                Debug.Log("Transitioning to tutorial2 state.");
                 break;
 
             case GameState.tutorial2:
-                puzzle1.SetActive(false);
-                puzzle2.SetActive(true);
+                //state to wait in while the puzzle1 coroutines play
+                // puzzle1.SetActive(false);
+                Debug.Log("Entered tutorial2 state.");
+                // puzzle2.SetActive(true);
+                dinoPanel.SetActive(true);
                 startTime = Time.time;
-                lights.text = " 000000";
-                if (Input.anyKeyDown) // TODO: or stay for only a few seconds
-                {
-                    Debug.Log("Transitioning to puzzle2 state.");
-                    state = GameState.puzzle2;
-                }
+                Debug.Log("Starting puzzle2 timer.");
+                // lights.text = " 000000";
+                circuitSystem.SetSwitches("000000");
+                state = GameState.puzzle2;
+                Debug.Log("Transitioning to puzzle2 state.");
                 break;
             
             case GameState.puzzle2:
                 // transitions to puzzle2Win if lights are correct
-                { if (lights.text == "101001")
-                    {
-                        Debug.Log("Correct lights, transitioning to puzzle2Win state.");
-                        state = GameState.puzzle2Win;
-                    }
-                }
+                // everything done via handlelights
                 break;
 
             case GameState.puzzle2Win:
-                // TODO: Play win cutscene
-                // TODO: communicate with dinosaur
-
-
-                // alarm successful pop up
-                // alarm sound effect
-
-                // dino growl (?) sound effect
+                // dino growl sound effect
                 StartCoroutine(Puzzle2WinSequence());
-                puzzle2.SetActive(false);
-                winPanel.SetActive(true);
-                startTime = 0;
-                if (Input.anyKeyDown) // TODO: stay for only a few seconds
-                {
-                    Debug.Log("Transitioning to wait state.");
-                    state = GameState.wait;
-                }
+                state = GameState.puzzle2End;
                 break;
 
             case GameState.puzzle2Fail:
-                // TODO: Play fail cutscene
-                // TODO: communicate with dinosaur
-
-                // alarm fail pop up
-
-                // dino roar (?) sound effect
                 StartCoroutine(Puzzle2FailSequence());
-                puzzle2.SetActive(false);
-                losePanel.SetActive(true); 
-                startTime = 0;
-                if (Input.anyKeyDown) // TODO: stay for only a few seconds
-                {
-                    Debug.Log("Transitioning to wait state.");
-                    state = GameState.wait;
-                }
+                state = GameState.puzzle2End;
                 break;
 
+            case GameState.puzzle2End:
+                // does nothing, waits while puzzle2coroutines end
+                Debug.Log("Entered end state.");
+                break;
         }
     }
 
     private IEnumerator JumpScare() {
-        dino.SendMessage("j");
-        yield return new WaitForSeconds(1.5f);
+        dino.SendSerialMessage("j\n");
+        yield return 0;
     }
 
     private IEnumerator Roar() {
-        dino.SendMessage("r");
         dinoRoar.Play();
-        yield return new WaitForSeconds(1.5f);
+        dino.SendSerialMessage("r\n");
+        yield return 0;
     }
 
     private IEnumerator Growl() {
-        dino.SendMessage("g");
         dinoGrowl.Play();
-        yield return new WaitForSeconds(1.5f);
+        dino.SendSerialMessage("g\n");
+        yield return 0;
     }
 
     private IEnumerator Home() {
-        dino.SendMessage("h");
-        yield return new WaitForSeconds(2f);
+        dino.SendSerialMessage("h\n");
+        yield return 0;
     }
 
     private IEnumerator Puzzle1WinSequence()
     {
+        Debug.Log("Puzzle 1 Win Sequence");
         yield return StartCoroutine(JumpScare());
         yield return StartCoroutine(Growl());
+        yield return new WaitForSeconds(3.5f);
+        state = GameState.puzzle2;
+        startTime = Time.time;
+        puzzle2.SetActive(true);
+        dinoPanel.SetActive(false);
+        Debug.Log("Transitioning to puzzle2 state.");
     }
 
     private IEnumerator Puzzle1FailSequence()
     {
+        Debug.Log("Puzzle 1 Fail Sequence");
         yield return StartCoroutine(JumpScare());
         yield return StartCoroutine(Roar());
+        yield return new WaitForSeconds(1.2f);
+        state = GameState.puzzle2;
+        startTime = Time.time;
+        puzzle2.SetActive(true);
+        dinoPanel.SetActive(false);
+        Debug.Log("Transitioning to puzzle2 state.");
     }
 
     private IEnumerator Puzzle2WinSequence()
     {
+        Debug.Log("Puzzle 2 Win Sequence");
         alarmSound.Play();
-        yield return StartCoroutine(Growl());
+        // puzzle2.SetActive(false);
+        winPanel.SetActive(true);
+        yield return StartCoroutine(Roar());
+        yield return new WaitForSeconds(1.2f);
         yield return StartCoroutine(Home());
+        yield return new WaitForSeconds(2f);
+        startTime = 0;
+        state = GameState.wait;
+        Debug.Log("Transitioning to wait state.");
     }
 
     private IEnumerator Puzzle2FailSequence()
     {
+        Debug.Log("Puzzle 2 Fail Sequence");
+        // puzzle2.SetActive(false);
+        losePanel.SetActive(true);
         yield return StartCoroutine(Roar());
+        yield return new WaitForSeconds(1.2f);
         yield return StartCoroutine(Home());
-    }
+        yield return new WaitForSeconds(2f);
+        startTime = 0;
+        state = GameState.wait;
+        Debug.Log("Transitioning to wait state.");    }
 
     // this function is called by the RFID MessageListner whenever any item is scanned.
     public void HandleScannedItem(string item) {
-        if (state == GameState.puzzle1 || state == GameState.tutorial1) {
+        if (state == GameState.puzzle1) {
             if (onlyValidProps && !itemDescriptions.ContainsKey(item)) {
                 Debug.Log("Invalid item scanned: " + item);
                 return;
@@ -333,7 +350,14 @@ public class GameStateManager : MonoBehaviour
 
     public void HandleLights(string lightString) {
         if (state == GameState.puzzle2) {
-            lights.text = lightString.Trim();
+            // lights.text = lightString.Trim();
+            circuitSystem.SetSwitches(lightString.Trim());
+            Debug.Log($"Lights updated: {lightString.Trim()}");
+            if (lightString.Trim() == "101001")
+            {
+                Debug.Log("Correct lights, transitioning to puzzle2Win state.");
+                state = GameState.puzzle2Win;
+            }
         } else {
             Debug.Log($"Lights updated, but current state is {state.ToString()}.");
             return;

@@ -19,9 +19,14 @@ public class Meter : MonoBehaviour
 
     protected Slider mySlider;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         mySlider = GetComponent<Slider>();
+        if(mySlider == null)
+        {
+            Debug.LogError("Meter: No slider found on this object.");
+            //return;
+        }
         trueValue = mySlider.value;
         firstValue = mySlider.value;
     }

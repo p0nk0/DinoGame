@@ -51,6 +51,14 @@ public class MessageSender : MonoBehaviour
 
     new void SendMessage(string message)
     {
-        serialController.SendSerialMessage(message);
+        Debug.Log("Dino sender: Sending message: " + message);
+        if (serialController != null)
+        {
+            serialController.SendSerialMessage(message);
+        }
+        else
+        {
+            Debug.LogWarning("Dino sender: SerialController is not assigned.");
+        }
     }
 }
