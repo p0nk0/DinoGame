@@ -1,3 +1,8 @@
+/*
+Contains the Finite State Machine and its effects on the UI and communication to connected Arduinos.
+By: Taylor Roberts
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,13 +38,9 @@ public class GameStateManager : MonoBehaviour
     private float startTime;
 
     [Header("Puzzle 2")]
-    // TODO: Assign to empty game object and create diagram
-    //       use this to perform switch-light logic and
-    //       determine light configuration
     [SerializeField] private CircuitSystem circuitSystem;
 
     [SerializeField] private GameObject puzzle2;
-    // [SerializeField] private TextMeshProUGUI lights; // string of 0s and 1s for now
     
     [SerializeField] private float timeLimit2 = 30.0f;
 
@@ -67,7 +68,7 @@ public class GameStateManager : MonoBehaviour
 
     }; 
 
-    // we need this space in front of keys I guess
+    // we need this space in front of RFID UIDs, apparently
     private Dictionary<string, string> itemDescriptions = new Dictionary<string, string>
     {
         { " f3 2a 46 36", "Velociraptor Saliva" },
@@ -93,14 +94,6 @@ public class GameStateManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // if (puzzle1States.Contains(state)) {
-        //     stateText1.text = state.ToString();
-        // } else {
-        //     stateText2.text = state.ToString();
-        // }
-
-        // Debug.Log(startTime);
-
         if (startTime > 0) {
             float elapsedTime = Time.time - startTime;
 
@@ -108,13 +101,9 @@ public class GameStateManager : MonoBehaviour
 
             if (puzzle1States.Contains(state)) {
                 timeLeft = Mathf.Max(timeLimit1 - elapsedTime, 0);
-                // if (timerText1) timerText1.text = $"Time: {timeLeft:F1}s";
             } else {
                 timeLeft = Mathf.Max(timeLimit2 - elapsedTime, 0);
-                // if (timerText2) timerText2.text = $"Time: {timeLeft:F1}s";
             }
-
-            // Debug.Log($"Time Left: {timeLeft:F1}s");
 
             if (puzzle1States.Contains(state) && !noTimeLimitStates.Contains(state) && elapsedTime >= timeLimit1) {
                 state = GameState.puzzle1Fail;
@@ -127,7 +116,7 @@ public class GameStateManager : MonoBehaviour
         
         switch (state) {
             case GameState.wait:
-                // transitions to tutorial1 if anything is scanned
+                // transitions to tutorial1 if anything is scanned (including non-props)
                 resetPanel.SetActive(true);
                 winPanel.SetActive(false);
                 losePanel.SetActive(false); 
@@ -135,9 +124,9 @@ public class GameStateManager : MonoBehaviour
                 puzzle2.SetActive(false);
                 dinoPanel.SetActive(false);
 
-                if (Input.anyKeyDown) // TODO: or anything is scanned
+                if (debugMode && Input.anyKeyDown)
                 {
-                    Debug.Log("Transitioning to tutorial1 state.");
+                    Debug.Log("Debug Mode: Transitioning to tutorial1 state.");
                     state = GameState.tutorial1;
                 }
                 break;
@@ -153,6 +142,8 @@ public class GameStateManager : MonoBehaviour
                 }
                 if(puzzle1!=null)puzzle1.SetActive(true);
                 if(resetPanel!=null)resetPanel.SetActive(false);
+
+                // TODO: make a clearlog function
                 systemLog.LogMessage("");
                 systemLog.LogMessage("");
                 systemLog.LogMessage("");
@@ -166,11 +157,11 @@ public class GameStateManager : MonoBehaviour
 
             case GameState.puzzle1:
                 // transitions to itemScanned if anything is scanned
-                // does nothing except for waiting for items to be scanned
+                // does nothing except wait for items to be scanned
 
                 if (debugMode && Input.GetKeyDown(KeyCode.Space))
                 {
-                    Debug.Log("DEBUG MODE: Skipping to puzzle1Win state.");
+                    Debug.Log("Debug Mode: Skipping to puzzle1Win state.");
                     state = GameState.puzzle1Win;
                 }
                 else
@@ -183,7 +174,7 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.itemScanned:
-                if (itemsScanned.Add(scannedItem)) // if item is new
+                if (itemsScanned.Add(scannedItem)) // item is new
                 {
                     beep.Play();
                     Debug.Log("New item scanned: " + scannedItem);
@@ -197,7 +188,6 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.updateProgressBar:
-                // scanLog.text += $"\n{itemDescriptions[scannedItem]} Scanned!";
                 systemLog.LogMessage("DNA Sample Scanned: " + itemDescriptions[scannedItem]);
                 progressBar.SetValuePercentage((float)itemsScanned.Count/maxScans);
                 state = GameState.puzzle1;
@@ -205,26 +195,21 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.puzzle1Win:
-                // dino growl
                 StartCoroutine(Puzzle1WinSequence());
                 state = GameState.tutorial2;
                 break;
 
             case GameState.puzzle1Fail:
-                // dino roar
                 StartCoroutine(Puzzle1FailSequence());
                 state = GameState.tutorial2;
                 break;
 
             case GameState.tutorial2:
                 //state to wait in while the puzzle1 coroutines play
-                // puzzle1.SetActive(false);
                 Debug.Log("Entered tutorial2 state.");
-                // puzzle2.SetActive(true);
                 dinoPanel.SetActive(true);
                 startTime = Time.time;
                 Debug.Log("Starting puzzle2 timer.");
-                // lights.text = " 000000";
                 circuitSystem.SetSwitches("000000");
                 state = GameState.puzzle2;
                 Debug.Log("Transitioning to puzzle2 state.");
@@ -236,7 +221,6 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.puzzle2Win:
-                // dino growl sound effect
                 StartCoroutine(Puzzle2WinSequence());
                 state = GameState.puzzle2End;
                 break;
@@ -247,37 +231,44 @@ public class GameStateManager : MonoBehaviour
                 break;
 
             case GameState.puzzle2End:
-                // does nothing, waits while puzzle2coroutines end
-                Debug.Log("Entered end state.");
+                // does nothing, waits while puzzle2 coroutines end
                 break;
         }
     }
 
+    // turns on a light to make the dinosaur visible
+    // previously, made the dinosaur move into a window
     private IEnumerator JumpScare() {
         dino.SendSerialMessage("j\n");
         yield return 0;
     }
 
+    // makes the dinosaur open its mouth and roar
     private IEnumerator Roar() {
         dinoRoar.Play();
         dino.SendSerialMessage("r\n");
         yield return 0;
     }
 
+    // makes the dinosaur show its teeth and growl
     private IEnumerator Growl() {
         dinoGrowl.Play();
         dino.SendSerialMessage("g\n");
         yield return 0;
     }
 
+    // turns off a light to make the dinosaur less visible
+    // previously, made the dinosaur away from a window
     private IEnumerator Home() {
         dino.SendSerialMessage("h\n");
         yield return 0;
     }
 
+    // These coroutines are needed to time dino commands and sound effects properly
+    // I can't put waits in the other functions, apparently
     private IEnumerator Puzzle1WinSequence()
     {
-        Debug.Log("Puzzle 1 Win Sequence");
+        Debug.Log("Starting puzzle 1 Win Sequence");
         yield return StartCoroutine(JumpScare());
         yield return StartCoroutine(Growl());
         yield return new WaitForSeconds(3.5f);
@@ -290,7 +281,7 @@ public class GameStateManager : MonoBehaviour
 
     private IEnumerator Puzzle1FailSequence()
     {
-        Debug.Log("Puzzle 1 Fail Sequence");
+        Debug.Log("Starting puzzle 1 Fail Sequence");
         yield return StartCoroutine(JumpScare());
         yield return StartCoroutine(Roar());
         yield return new WaitForSeconds(1.2f);
@@ -303,9 +294,8 @@ public class GameStateManager : MonoBehaviour
 
     private IEnumerator Puzzle2WinSequence()
     {
-        Debug.Log("Puzzle 2 Win Sequence");
+        Debug.Log("Starting puzzle 2 Win Sequence");
         alarmSound.Play();
-        // puzzle2.SetActive(false);
         winPanel.SetActive(true);
         yield return StartCoroutine(Roar());
         yield return new WaitForSeconds(1.2f);
@@ -318,8 +308,7 @@ public class GameStateManager : MonoBehaviour
 
     private IEnumerator Puzzle2FailSequence()
     {
-        Debug.Log("Puzzle 2 Fail Sequence");
-        // puzzle2.SetActive(false);
+        Debug.Log("Starting puzzle 2 Fail Sequence");
         losePanel.SetActive(true);
         yield return StartCoroutine(Roar());
         yield return new WaitForSeconds(1.2f);
@@ -329,7 +318,7 @@ public class GameStateManager : MonoBehaviour
         state = GameState.wait;
         Debug.Log("Transitioning to wait state.");    }
 
-    // this function is called by the RFID MessageListner whenever any item is scanned.
+    // This function is called by the RFID MessageListner whenever any item is scanned.
     public void HandleScannedItem(string item) {
         if (state == GameState.puzzle1) {
             if (onlyValidProps && !itemDescriptions.ContainsKey(item)) {
@@ -348,9 +337,9 @@ public class GameStateManager : MonoBehaviour
         }
     }
 
+    // This function is called by the PuzzleBox MessageListener whenever any switches are toggled.
     public void HandleLights(string lightString) {
         if (state == GameState.puzzle2) {
-            // lights.text = lightString.Trim();
             circuitSystem.SetSwitches(lightString.Trim());
             Debug.Log($"Lights updated: {lightString.Trim()}");
             if (lightString.Trim() == "101001")

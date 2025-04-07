@@ -23,31 +23,6 @@ public class MessageSender : MonoBehaviour
         // Automatically find and assign the SerialController from the scene.
         serialController = GetComponent<SerialController>();
     }
-    
-    // void Update()
-    // {
-    //     // Test message sending
-    //     // if (Input.GetKeyDown(KeyCode.R))
-    //     // {
-    //     //     Debug.Log("sending r");
-    //     //     serialController.SendSerialMessage("r\n");
-    //     // }
-    //     // if (Input.GetKeyDown(KeyCode.J))
-    //     // {
-    //     //     Debug.Log("sending j");
-    //     //     serialController.SendSerialMessage("j\n");
-    //     // }
-    //     // if (Input.GetKeyDown(KeyCode.H))
-    //     // {
-    //     //     Debug.Log("sending h");
-    //     //     serialController.SendSerialMessage("h");
-    //     // }
-    //     // if (Input.GetKeyDown(KeyCode.G))
-    //     // {
-    //     //     Debug.Log("sending g");
-    //     //     serialController.SendSerialMessage("g");
-    //     // }
-    // }
 
     new void SendMessage(string message)
     {
