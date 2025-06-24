@@ -17,6 +17,8 @@ The core game logic was driven by a state machine with 14 states. Each state rep
 ![FSM diagram 1](Images/FSM1.jpg)
 ![FSM diagram 2](Images/FSM2.jpg)
 
+The first puzzle involves guests scanning up to 5 different RFID-embedded props with a custom-built "DNA Scanner". After scanning 3 unique items (or running out of time), the dinosaur animatronic growls, and the next puzzle begins. The second puzzle involves guests interacting with a custom-built circuit breaker box, using the dynamic wiring diagram on the screen to match an alarm code found within the attraction. Upon successful completion of this puzzle within the time limit, the alarm sounds, saving the guests from the dinosaur. If guests run out of time, the dinosaur roars, and the guests lose. Between parties, the screen displays a fake error screen to maintain guest immersion.
+
 Here's a hardware map of the project, showing how various components interface with the Unity project.
 ![Hardware Map](Images/Map.jpg)
 
