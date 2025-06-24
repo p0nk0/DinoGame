@@ -20,6 +20,8 @@ The core game logic was driven by a state machine with 14 states. Each state rep
 Here's a hardware map of the project, showing how various components interface with the Unity project.
 ![Hardware Map](Images/Map.jpg)
 
+For more information on the various Arduinos involved in the project, check out [the dinoArduinos repo](github.com/p0nk0/DinoArduinos)
+
 ## Setup
 - Use Unity 6000.0.40f1
 - Make sure each Arduino's COM port and baud rate match its respective SerialControllers object
