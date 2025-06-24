@@ -17,6 +17,9 @@ The core game logic was driven by a state machine with 14 states. Each state rep
 ![FSM diagram 1](Images/FSM1.jpg)
 ![FSM diagram 2](Images/FSM2.jpg)
 
+Here's a hardware map of the project, and how various components interface with the Unity project.
+![Hardware Map](Images/Map.jpg)
+
 how to set up
 
 my contributions
