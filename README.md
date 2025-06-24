@@ -14,8 +14,8 @@ Features
 
 System Design
 The core game logic was driven by a state machine with 14 states. Each state represents commands to visuals, sound, and hardware. Each transition represents a signal received by the Unity controller.
-![FSM diagram 1]()
-![FSM diagram 2]()
+![FSM diagram 1](Images/FSM1.jpg)
+![FSM diagram 2](Images/FSM2.jpg)
 
 how to set up
 
