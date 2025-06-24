@@ -42,7 +42,7 @@ Here's a hardware map of the project, showing how various components interface w
 ![3](Images/3.jpg)
 ![4](Images/4.png)
 ![5](Images/5.png)
-![6](Images/6.png)
+![6](Images/6.jpg)
 
 ## Credits
 - Kenechukwu Echezona: UI logic
