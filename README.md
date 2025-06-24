@@ -13,16 +13,17 @@ This project powered the interactive experience behind our Jurassic Park booth, 
 - User-triggered animatronic effects
 
 ## System Design
+The first puzzle involves guests scanning multiple RFID-embedded props with a custom-built "DNA Scanner". After scanning 3 unique items (or running out of time), the dinosaur animatronic growls, and the next puzzle begins. The second puzzle involves guests interacting with a custom-built circuit breaker box, using the dynamic wiring diagram on the screen to match an alarm code found within the attraction. Upon successful completion of this puzzle within the time limit, the alarm sounds, saving the guests from the dinosaur. If guests run out of time, the dinosaur roars, and the guests lose. Between parties, the screen displays a fake error screen to maintain guest immersion.
+
+For more information on the various Arduinos involved in the project, check out [the dinoArduinos repo](github.com/p0nk0/DinoArduinos)
+
+
 The core game logic was driven by a state machine with 14 states. Each state represents commands to visuals, sound, and hardware. Each transition represents a signal received by the Unity controller.
 ![FSM diagram 1](Images/FSM1.jpg)
 ![FSM diagram 2](Images/FSM2.jpg)
 
-The first puzzle involves guests scanning up to 5 different RFID-embedded props with a custom-built "DNA Scanner". After scanning 3 unique items (or running out of time), the dinosaur animatronic growls, and the next puzzle begins. The second puzzle involves guests interacting with a custom-built circuit breaker box, using the dynamic wiring diagram on the screen to match an alarm code found within the attraction. Upon successful completion of this puzzle within the time limit, the alarm sounds, saving the guests from the dinosaur. If guests run out of time, the dinosaur roars, and the guests lose. Between parties, the screen displays a fake error screen to maintain guest immersion.
-
 Here's a hardware map of the project, showing how various components interface with the Unity project.
 ![Hardware Map](Images/Map.jpg)
-
-For more information on the various Arduinos involved in the project, check out [the dinoArduinos repo](github.com/p0nk0/DinoArduinos)
 
 ## Setup
 - Use Unity 6000.0.40f1
