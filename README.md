@@ -35,7 +35,7 @@ Here's a hardware map of the project, showing how various components interface w
 ## My contributions
 - Designed and created the game state logic
 - Set up all Serial Communication using the Ardity library
-- Created Mock UI
+- Created Scaffolding UI
 - Integrated project with Animatronic, Props, and Speaker (on-site)
 - Playtested game (on-site)
 
