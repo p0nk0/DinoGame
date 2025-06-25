@@ -7,10 +7,9 @@ This project powered the interactive experience behind our Jurassic Park booth, 
 
 ## Features
 - Finite State Machine to control game state based on puzzle inputs
-- Unity-controlled UI and sound effects
+- Unity-controlled UI, sound effects, and animatronic scenes
 - Serial communication with multiple Arduino controllers
 - Two puzzles (RFID "DNA Scanner" and Circuit Breaker)
-- User-triggered animatronic effects
 
 ## System Design
 The first puzzle involves guests scanning multiple RFID-embedded props with a custom-built "DNA Scanner". After scanning 3 unique items (or running out of time), the dinosaur animatronic growls, and the next puzzle begins. The second puzzle involves guests interacting with a custom-built circuit breaker box, using the dynamic wiring diagram on the screen to match an alarm code found within the attraction. Upon successful completion of this puzzle within the time limit, the alarm sounds, saving the guests from the dinosaur. If guests run out of time, the dinosaur roars, and the guests lose. Between parties, the screen displays a fake error screen to maintain guest immersion.
