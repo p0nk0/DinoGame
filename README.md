@@ -3,16 +3,16 @@
 An immersive escape room-style attraction created for CMU's 2025 Spring Carnival.
 
 ## Overview
-This project powered the interactive experience behind our Jurassic Park booth, synchronizing Arduino-based puzzle inputs with an animatronic dinosaur and audiovisual effects. It was developed by members of CMU's Theme Park Engineering Group and Sustainable Earth and won first place overall out of 21 student organizations.
+This project powered the interactive experience behind our Jurassic Park booth, synchronizing Arduino-driven puzzle inputs with an animatronic dinosaur and audiovisual effects. It was developed in Unity by members of CMU's Theme Park Engineering Group and Sustainable Earth and won first place overall out of 21 student organizations.
 
 ## Features
 - Finite State Machine to control game state based on puzzle inputs
-- Unity-controlled UI, sound effects, and animatronic scenes
+- Unity-managed UI, sound effects, and animatronic scenes
 - Serial communication with multiple Arduino controllers
-- Two puzzles (RFID "DNA Scanner" and Circuit Breaker)
+- Two puzzles: an RFID-based "DNA Scanner" and a circuit breaker switch puzzle
 
 ## System Design
-The first puzzle involves guests scanning multiple RFID-embedded props with a custom-built "DNA Scanner". After scanning 3 unique items (or running out of time), the dinosaur animatronic growls, and the next puzzle begins. The second puzzle involves guests interacting with a custom-built circuit breaker box, using the dynamic wiring diagram on the screen to match an alarm code found within the attraction. Upon successful completion of this puzzle within the time limit, the alarm sounds, saving the guests from the dinosaur. If guests run out of time, the dinosaur roars, and the guests lose. Between parties, the screen displays a fake error screen to maintain guest immersion.
+The first puzzle involves guests scanning multiple RFID-embedded props with a custom-built "DNA Scanner". After scanning 3 unique items (or running out of time), the dinosaur animatronic growls, and the next puzzle begins. The second puzzle involves guests interacting with a custom-built circuit breaker box, using an on-screen dynamic wiring diagram to match a hidden alarm code. Upon successful completion of this puzzle within the time limit, the alarm sounds, saving the guests from the dinosaur. If guests run out of time, the dinosaur roars, and the guests lose. Between parties, the screen displays a fake error screen to maintain guest immersion.
 
 For more information on the various Arduinos involved in the project, check out the [dinoArduinos](github.com/p0nk0/DinoArduinos) repo
 
@@ -30,14 +30,14 @@ Here's a hardware map of the project, showing how various components interface w
 - Press play!
 - If Debug Mode is set in the Game State Manager, there are various keyboard overrides to skip states
   - Any key starts the game
-  - Space skips wins the first puzzle
+  - Space auto-completes the first puzzle
 
 ## My contributions
 - Designed and created the game state logic
 - Set up all Serial Communication using the Ardity library
 - Created Scaffolding UI
 - Integrated project with Animatronic, Props, and Speaker (on-site)
-- Playtested game (on-site)
+- Playtested and iterated user experience on-site
 
 ## Media
 ![1](Images/1.jpg)
